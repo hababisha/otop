@@ -12,7 +12,7 @@ func Router() *gin.Engine{
 	otp := r.Group("/otp")
 	{
 		otp.POST("/generate", controller.GenerateOTP)
-		otp.POST("/verify", controller.VerifyOTP)
+		// otp.POST("/verify", controller.VerifyOTP)
 	}
 	return r
 }
