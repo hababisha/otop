@@ -1,5 +1,8 @@
 package controller
 
+import "github.com/hababisha/otop/models"
+
+var store = make(map[string]models.Otp)
 
 func generateSixDigitOTP(){}
 	
