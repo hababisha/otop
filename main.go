@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import "github.com/hababisha/otop/router"
+
 
 func main(){
-	fmt.Println("hello world")
+	r:= router.Router()
+	r.Run(":8080")
 }
