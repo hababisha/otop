@@ -24,7 +24,7 @@ func CreateOTP(phonenumber, otp string, expiresAt time.Time) error {
 
 func GetOTP(phonenumber string) (*OTPRecord, error) {
 	query := `
-		SELECT value, expires_at, used FROM otps WHERE phonenumebr=$1 ORDER BY created_at DESC LIMIT 1
+		SELECT value, expires_at, used FROM otps WHERE phonenumber=$1 ORDER BY created_at DESC LIMIT 1
 	`
 
 	var record OTPRecord

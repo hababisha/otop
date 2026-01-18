@@ -8,11 +8,11 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hababisha/otop/models"
+	// "github.com/hababisha/otop/models"
 	"github.com/hababisha/otop/repository"
 )
 
-var store = make(map[string]models.Otp)
+// var store = make(map[string]models.Otp)
 
 func GenerateSixDigitOTP() string{
     return fmt.Sprintf("%06d", rand.Intn(1000000))
@@ -68,6 +68,7 @@ func VerifyOTP(c *gin.Context){
         c.JSON(http.StatusBadRequest, gin.H{
             "error": "bad request",
         })
+        return
     }
 
     // storedOtp, exists := store[req.PhoneNumber]     
