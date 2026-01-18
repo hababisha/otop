@@ -56,7 +56,7 @@ func GenerateOTP(c *gin.Context){
         "success": true,
         "expires_at": expiresAt,
     })
-} //add timestamp to the otp generated and send with theoption provided
+}
 
 func VerifyOTP(c *gin.Context){
     var req struct{
@@ -70,31 +70,19 @@ func VerifyOTP(c *gin.Context){
         })
     }
 
-    //check if the otp exists
-    storedOtp, exists := store[req.PhoneNumber]     
-    if !exists {
-        c.JSON(http.StatusOK, gin.H{"valid": false})
-        return
-    }
-    //check if it's not expired
-    if time.Now().After(storedOtp.ExpiresAt){
-        c.JSON(http.StatusOK, gin.H{"valid": false})
-        return
-    }
-    //check if it's nto used 
-    if storedOtp.Used {
-        c.JSON(http.StatusOK, gin.H{"valid": false})
-        return
-    }
-    //check if the values match
-
-    if storedOtp.Value != req.Otp{
+    // storedOtp, exists := store[req.PhoneNumber]     
+    record, err := repository.GetOTP(req.PhoneNumber)
+    if err != nil {
         c.JSON(http.StatusOK, gin.H{"valid": false})
         return
     }
 
-    storedOtp.Used = true
-    store[req.PhoneNumber] = storedOtp
+    if record.Used || time.Now().After(record.ExpiresAt) || record.OTP != req.Otp {
+        c.JSON(http.StatusOK, gin.H{"valid": false})
+        return 
+    }
+
+    _ = repository.MarkOtpAsUsed(req.PhoneNumber, req.Otp)
 
     c.JSON(http.StatusOK, gin.H {
         "valid" : true,
