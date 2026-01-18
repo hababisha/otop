@@ -51,5 +51,47 @@ func GenerateOTP(c *gin.Context){
     })
 } //add timestamp to the otp generated and send with theoption provided
 
-func VerifyOTP(){}
+func VerifyOTP(c *gin.Context){
+    var req struct{
+        PhoneNumber string `json:"phonenumber" binding:"required"`
+        Otp string `json:"otp" binding:"required"`
+    }
+
+    if err := c.ShouldBindJSON(&req); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{
+            "error": "bad request",
+        })
+    }
+
+    //check if the otp exists
+    storedOtp, exists := store[req.PhoneNumber]     
+    if !exists {
+        c.JSON(http.StatusOK, gin.H{"valid": false})
+        return
+    }
+    //check if it's not expired
+    if time.Now().After(storedOtp.ExpiresAt){
+        c.JSON(http.StatusOK, gin.H{"valid": false})
+        return
+    }
+    //check if it's nto used 
+    if storedOtp.Used {
+        c.JSON(http.StatusOK, gin.H{"valid": false})
+        return
+    }
+    //check if the values match
+
+    if storedOtp.Value != req.Otp{
+        c.JSON(http.StatusOK, gin.H{"valid": false})
+        return
+    }
+
+    storedOtp.Used = true
+    store[req.PhoneNumber] = storedOtp
+
+    c.JSON(http.StatusOK, gin.H {
+        "valid" : true,
+    })
+
+}
 
