@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hababisha/otop/models"
+	"github.com/hababisha/otop/repository"
 )
 
 var store = make(map[string]models.Otp)
@@ -36,10 +37,16 @@ func GenerateOTP(c *gin.Context){
     otp := GenerateFourDigitOTP() //TODO:change based on pref..can be preference setting
     expiresAt := time.Now().Add(5 * time.Minute)//TODO: expiry time also based on pref
 
-    store[req.PhoneNumber] = models.Otp{
-        Value: otp,
-        ExpiresAt: expiresAt,
-        Used: false,
+    // store[req.PhoneNumber] = models.Otp{
+    //     Value: otp,
+    //     ExpiresAt: expiresAt,
+    //     Used: false,
+    // }
+
+    if err := repository.CreateOTP(req.PhoneNumber, otp, expiresAt); err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create otp"})
+        log.Fatal(err)
+        return
     }
 
     log.Println("OTP for ", req.PhoneNumber, ":", otp)
